@@ -27,6 +27,7 @@ Class MainWindow
     Dim stopWatch As New Stopwatch()
 
 
+
     Public Sub New()
 
         ' 設計工具需要此呼叫。
@@ -34,11 +35,21 @@ Class MainWindow
 
         ' 在 InitializeComponent() 呼叫之後加入所有初始設定。
         bw.WorkerReportsProgress = True
-        pID = 7540
-        lt = ltLoc.GetLTAPI(pID)
-        Call refreshMeshList()
+        lt = LTGetter.getLTAPIServer
+        If IsNothing(lt) Then
+            MsgBox("LightTools session not found!")
+        Else
+            Me.Title = "Pinhole Camera Creator (PID = " + Str(lt.GetServerID()) + ")"
+            Call initSettings()
+            Call refreshMeshList()
+        End If
+
+        'pID = 7540
+        'lt = ltLoc.GetLTAPI(pID)
+
 
     End Sub
+
     Private Sub refreshMeshList()
         'retrieve a list of luminance/illuminance meshes in LT
         Dim receiverListKey, receiverKey As String
@@ -67,12 +78,14 @@ Class MainWindow
                 If lt.DbType(meshKey, "INTENSITY_MESH") = 0 Then
                     If lt.DbGet(meshKey, "Name") Like "PinHoleLumMap*" Then
                         meshName = lt.DbGet(receiverKey, "Name") + " | " + lt.DbGet(meshKey, "Name")
-                        'put mesh name-key mapping into dictionary
-                        meshKeyDict.Add(meshName, meshKey)
-                        'put mesh name-receiver key mapping into dictionary
-                        receiverKeyDict.Add(meshName, receiverKey)
-                        'add meshName to the combobox
-                        Me.meshList.Items.Add(meshName)
+                        If Not meshKeyDict.ContainsKey(meshName) Then
+                            'put mesh name-key mapping into dictionary
+                            meshKeyDict.Add(meshName, meshKey)
+                            'put mesh name-receiver key mapping into dictionary
+                            receiverKeyDict.Add(meshName, receiverKey)
+                            'add meshName to the combobox
+                            Me.meshList.Items.Add(meshName)
+                        End If
                     End If
                 End If
             Loop
@@ -114,8 +127,8 @@ Class MainWindow
             'Debug.Print(ugrTmp)
             UGR = 8 * Log10(0.25 / backLum * ugrTmp)
             Me.ugrOut.Text = String.Format("{0:0.0}", UGR)
-            Call TwoDArrayToCSV(lumArray)
-            Call TwoDArrayToCSV(ugrArray)
+            'Call TwoDArrayToCSV(lumArray) 'dump luminance data into csv (for debugging)
+            'Call TwoDArrayToCSV(ugrArray) 'dump calculated ugrTmp data into csv (for debugging)
         End If
 
 
@@ -168,15 +181,18 @@ Class MainWindow
         Dim gridArea As Double
         Dim workDist As Double
         Dim gridWidth, gridHeight As Double
-        Dim s As Double
+        Dim meshWidth, meshHeight As Double
+        Dim minMeshStr As Double
+        Dim s, r As Double
         Dim numX, numY As Integer
-        Dim minStr, maxStr As Double
         receiverKey = receiverKeyDict(Me.meshList.Text)
         meshKey = meshKeyDict(Me.meshList.Text)
         workDist = lt.DbGet(lt.DbKeyStr(receiverKey) + ".SPATIAL_LUM_METER[Spatial_Lum_Meter]", "Distance")
         'get grid number and dimension from mesh
         numX = lt.DbGet(meshKey, "X_Dimension")
         numY = lt.DbGet(meshKey, "Y_Dimension")
+        meshWidth = lt.DbGet(meshKey, "Max_X_Bound") - lt.DbGet(meshKey, "Min_X_Bound")
+        meshHeight = lt.DbGet(meshKey, "Max_Y_Bound") - lt.DbGet(meshKey, "Min_Y_Bound")
         gridWidth = (lt.DbGet(meshKey, "Max_X_Bound") - lt.DbGet(meshKey, "Min_X_Bound")) / numX
         gridHeight = (lt.DbGet(meshKey, "Max_Y_Bound") - lt.DbGet(meshKey, "Min_Y_Bound")) / numY
         gridArea = gridWidth * gridHeight
@@ -186,8 +202,6 @@ Class MainWindow
         'prepare position index and solid angle arrays
         ReDim posIdArray(numY - 1, numX - 1)
         ReDim strArray(numY - 1, numX - 1)
-        minStr = Double.MaxValue
-        maxStr = Double.MinValue
         For i = 0 To numY - 1
             For j = 0 To numX - 1
                 gridX = gridX0 + gridWidth * j
@@ -195,18 +209,17 @@ Class MainWindow
                 s = Sqrt(workDist ^ 2 + (gridX ^ 2 + gridY ^ 2))
                 posIdArray(i, j) = posInd(gridX, gridY, workDist)
                 strArray(i, j) = gridStr(gridTheta(gridX, gridY, workDist), gridArea, s, workDist)
-                If strArray(i, j) >= maxStr Then
-                    maxStr = strArray(i, j)
-                End If
-                If strArray(i, j) <= minStr Then
-                    minStr = strArray(i, j)
-                End If
             Next
         Next
-        Call TwoDArrayToCSV(posIdArray)
+        'calculate minimal solid angle over mesh
+        minMeshStr = calcMinMeshStr(meshWidth, meshHeight, numX, numY, workDist)
+        minStrOut.Text = String.Format("{0:0.000e00}", minMeshStr)
+        'Call TwoDArrayToCSV(posIdArray) 'for debugging
     End Sub
     Private Sub meshList_DropDownClosed(sender As Object, e As EventArgs) Handles meshList.DropDownClosed
-        Call initMesh()
+        If (Me.meshList.Text <> "") Then
+            Call initMesh()
+        End If
     End Sub
     Private Sub calcDimension()
         'calculate dummy plane dimensions according to PRR/Lum. mesh settings
@@ -221,20 +234,23 @@ Class MainWindow
         Me.imgHeight.Text = imgHeight
         Me.imgWidth.Text = imgWidth
     End Sub
-    Private Sub calcMinMeshStr()
+    Private Function calcMinMeshStr(meshWidth As Double, meshHeight As Double, xNum As Integer, yNum As Integer, workDist As Double)
         'calculate minimal solid angle on the mesh (the one on upper left corner)
         Dim gridWidth, gridHeight As Double
-        Dim meshWidth, meshHeight As Double
         Dim r, d, s As Double
         Dim minMeshStr As Double
-        meshWidth = imgWidth.Text
-        meshHeight = imgHeight.Text
-        d = workDist.Text
-        gridWidth = meshWidth / xNum.Text
-        gridHeight = meshHeight / yNum.Text
+        d = workDist
+        gridWidth = meshWidth / xNum
+        gridHeight = meshHeight / yNum
         r = Sqrt((meshWidth * 0.5 - gridWidth * 0.5) ^ 2 + (meshHeight * 0.5 - gridHeight * 0.5) ^ 2)
         s = Sqrt(r ^ 2 + d ^ 2)
         minMeshStr = (gridHeight * gridWidth) * d / s ^ 3
+        Return minMeshStr
+    End Function
+    Private Sub updateMinMeshStr()
+        Dim minMeshStr As Double
+        minMeshStr = calcMinMeshStr(imgWidth.Text, imgHeight.Text, xNum.Text, yNum.Text, workDist.Text)
+        minStrOut.Text = String.Format("{0:0.000e00}", minMeshStr)
     End Sub
     Private Sub chkIntInput(sender As Object)
         Dim input As Integer
@@ -253,13 +269,13 @@ Class MainWindow
     Private Sub workDist_KeyUp(sender As Object, e As KeyEventArgs) Handles workDist.KeyUp
         Call chkNumInput(sender)
         Call calcDimension()
-        Call calcMinMeshStr()
+        Call updateMinMeshStr()
     End Sub
 
     Private Sub fov_KeyUp(sender As Object, e As KeyEventArgs) Handles fov.KeyUp
         Call chkNumInput(sender)
         Call calcDimension()
-        Call calcMinMeshStr()
+        Call updateMinMeshStr()
     End Sub
 
     Private Sub apSize_KeyUp(sender As Object, e As KeyEventArgs) Handles apSize.KeyUp
@@ -272,24 +288,27 @@ Class MainWindow
 
     Private Sub xNum_KeyUp(sender As Object, e As KeyEventArgs) Handles xNum.KeyUp
         Call chkIntInput(sender)
-        Call calcMinMeshStr()
+        Call updateMinMeshStr()
     End Sub
 
     Private Sub yNum_KeyUp(sender As Object, e As KeyEventArgs) Handles yNum.KeyUp
         Call chkIntInput(sender)
-        Call calcMinMeshStr()
+        Call updateMinMeshStr()
     End Sub
     Private Sub arH_KeyUp(sender As Object, e As KeyEventArgs) Handles arH.KeyUp
         Call chkNumInput(sender)
         Call calcDimension()
+        Call updateMinMeshStr()
     End Sub
 
     Private Sub arW_KeyUp(sender As Object, e As KeyEventArgs) Handles arW.KeyUp
         Call chkNumInput(sender)
         Call calcDimension()
+        Call updateMinMeshStr()
     End Sub
     Private Sub createCamera(fov As Double, lookDist As Double, arW As Double, arH As Double)
         'create PRR camera
+        lt.SetOption("View Update", 0)
         lt.Cmd("\V3D")
         lt.Cmd("PlaceCamera " + js.LTCoord3(0, 0, 0) + " " + js.LTCoord3(0, 0, 1)) 'create a camera at origin
         newCamKey = "LENS_MANAGER[1].STUDIO_MANAGER[Studio_Manager].DATABASE[Camera_List].ENTITY[@Last]"
@@ -298,13 +317,14 @@ Class MainWindow
         lt.DbSet(newCamKey, "Look_Distance", lookDist)
         lt.DbSet(newCamKey, "Aspect_Width", arW)
         lt.DbSet(newCamKey, "Aspect_Height", arH)
+        lt.DbSet(newCamKey, "Gamma", 180)
     End Sub
     Private Sub createImgPlane(width As Double, height As Double, xNum As Integer, yNum As Integer, workDist As Double, apSize As Double)
         'create image plane for pin hole imaging
         Dim newReceiverKey As String
         Dim newLumMeshKey As String
+        lt.SetOption("View Update", 0)
         stat = js.MakeDummyPlane(lt, 0, 0, -workDist, 0, 0, 1, W:=width, H:=height, ApertureType:="Rectangular") 'create dummy plane
-        Debug.Print("dummy plane creating status: " + Str(stat))
         newDummyPlaneKey = "LENS_MANAGER[1].COMPONENTS[Components].PLANE_DUMMY_SURFACE[@Last]"
         newDummyPlaneName = lt.DbGet(newDummyPlaneKey, "Name")
         js.MakeReceiver(lt, EntityName:=newDummyPlaneName, ReceiverName:="Pinhole Image") 'create receiver
@@ -315,6 +335,7 @@ Class MainWindow
         lt.DbSet(newReceiverKey + ".SPATIAL_LUM_METER[Spatial_Lum_Meter]", "VirtualAperture", "Yes")
         lt.DbSet(newReceiverKey + ".SPATIAL_LUM_METER[Spatial_Lum_Meter]", "Distance", workDist)
         lt.DbSet(newReceiverKey + ".SPATIAL_LUM_METER[Spatial_Lum_Meter]", "Disk_Radius", apSize)
+        lt.DbSet(newReceiverKey + ".SPATIAL_LUM_METER[Spatial_Lum_Meter]", "Receiver_Units", "Photometric")
         'luminance mesh settings
         newLumMeshKey = newReceiverKey + ".BACKWARD_SPATIAL_LUMINANCE[Spatial_Luminance].SPATIAL_LUMINANCE_MESH[Spatial_Luminance_Mesh]"
         lt.DbSet(newLumMeshKey, "X_Dimension", xNum)
@@ -324,17 +345,18 @@ Class MainWindow
     Private Sub initSettings()
         If Me.IsInitialized Then
             'Luminance mesh settings
-            Me.xNum.Text = 320 'number of bins in x-direction
+            Me.xNum.Text = 200 'number of bins in x-direction
             Me.yNum.Text = 200 'number of bins in y-direction
             Me.workDist.Text = 20 'working distance
             Me.apSize.Text = 0.02 'aperture size
-            Me.imgHeight.Text = 18.6523
-            Me.imgWidth.Text = 24.8697
+            Me.imgHeight.Text = 40
+            Me.imgWidth.Text = 40
             'PRR camera settings
-            Me.fov.Text = 50 'FoV
+            Me.fov.Text = 90 'FoV
             Me.lookD.Text = 10 'looking distance
-            Me.arW.Text = 4 'aspect ratio (width)
-            Me.arH.Text = 3 'aspect raito (height)
+            Me.arW.Text = 1 'aspect ratio (width)
+            Me.arH.Text = 1 'aspect raito (height)
+            Call updateMinMeshStr()
         End If
     End Sub
     Private Sub reset_Click(sender As Object, e As RoutedEventArgs) Handles reset.Click
@@ -364,9 +386,11 @@ Class MainWindow
         lt.SetOption("View Update", 1)
         newGroupKey = "LENS_MANAGER[1].COMPONENTS[Components].GROUP[@Last]"
         newGroupName = lt.DbGet(newGroupKey, "Name")
+
         lt.DbSet(newGroupKey, "Name", "PinHoleCam")
         lt.End()
     End Sub
+
     Sub TwoDArrayToCSV(ByVal DataArray(,) As Double)
         Dim strTmp As String = ""
         Dim ofile As String = ""
