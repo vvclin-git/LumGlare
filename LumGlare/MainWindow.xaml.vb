@@ -26,6 +26,7 @@ Class MainWindow
         InitializeComponent()
 
         ' 在 InitializeComponent() 呼叫之後加入所有初始設定。
+        'debugMode = True
         debugMode = False
         If Not debugMode Then
             lt = LTGetter.getLTAPIServer
@@ -61,13 +62,13 @@ Class MainWindow
             'for each receiver, return a list containing all meshes
             meshListKey = lt.DbList(receiverKey, "SPATIAL_LUMINANCE_MESH", statList3)
             'use return code for loop ternimation
-            If statList1 = 53 Then
+            If statList1 = 53 Or statList1 = 52 Then
                 Exit Do
             End If
             'loop through the meshes
             Do
                 meshKey = lt.ListNext(meshListKey, statList2)
-                If statList2 = 53 Then
+                If statList2 = 53 Or statList2 = 52 Then
                     Exit Do
                 End If
                 'exclude intensity mesh
