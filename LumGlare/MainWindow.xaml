@@ -5,65 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LumGlare"
         mc:Ignorable="d"
-        Title="Lum Map UGR Calculation" Height="433" Width="528" ResizeMode="NoResize">
+        Title="Lum Map UGR Calculation" Height="279" Width="528" ResizeMode="NoResize">
     <Grid Margin="5,0,5,5">
-        <GroupBox x:Name="groupBox1" Header="GroupBox" HorizontalAlignment="Left" Height="90" Margin="5,161,0,0" VerticalAlignment="Top" Width="409">
+        <GroupBox x:Name="groupBox1" Header="GroupBox" HorizontalAlignment="Left" Height="154" Margin="5,85,0,0" VerticalAlignment="Top" Width="497">
             <Grid Margin="0">
-                <Label x:Name="label2" Content="Mesh Width" HorizontalAlignment="Left" Height="23" Margin="211,8,0,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="5,0"/>
-                <TextBox x:Name="imgWidth" HorizontalAlignment="Left" Height="23" Margin="302,9,0,0" TextWrapping="Wrap" Text="18.6253" VerticalAlignment="Top" Width="50" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label_Copy9" Content="mm" HorizontalAlignment="Left" Height="23" Margin="357,9,0,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" Padding="5,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label2_Copy" Content="Mesh Height" HorizontalAlignment="Left" Height="23" Margin="211,36,0,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="5,0"/>
-                <TextBox x:Name="imgHeight" HorizontalAlignment="Left" Height="23" Margin="302,37,0,0" TextWrapping="Wrap" Text="24.8697" VerticalAlignment="Top" Width="50" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label_Copy10" Content="mm" HorizontalAlignment="Left" Height="23" Margin="357,36,0,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" Padding="5,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
                 <Label x:Name="label" Content="Minimal Mesh Ω" HorizontalAlignment="Left" Height="23" Margin="6,9,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="minStrOut" HorizontalAlignment="Left" Height="23" Margin="114,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="72" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsReadOnly="True"/>
                 <Label x:Name="strStat" Content="(should &gt; 2e-05!)" HorizontalAlignment="Left" Height="23" Margin="99,35,0,0" VerticalAlignment="Top"/>
+                <Button x:Name="calcUGR" Content="Calculate UGR" Margin="398,102,-2,0" Height="23" VerticalAlignment="Top" HorizontalAlignment="Left" Width="89"/>
+                <Label x:Name="label_Copy" Content="Background Luminance" HorizontalAlignment="Left" Height="27" Margin="6,72,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="backLumIn" HorizontalAlignment="Left" Height="23" Margin="197,73,0,0" TextWrapping="Wrap" Text="100" VerticalAlignment="Top" Width="72" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                <Label x:Name="label_Copy1" Content="Calculated UGR" HorizontalAlignment="Left" Margin="6,101,0,0" Height="23" VerticalAlignment="Top"/>
+                <TextBox x:Name="ugrOut" HorizontalAlignment="Left" Height="23" Margin="197,101,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="72" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsReadOnly="True"/>
+                <Label x:Name="strStat_Copy" Content="cd/m^2" HorizontalAlignment="Left" Height="27" Margin="274,72,0,0" VerticalAlignment="Top"/>
             </Grid>
         </GroupBox>
 
-        <GroupBox x:Name="groupBox" Header="Pinhole Lum Meshes" Height="70" Margin="5,256,5,0" VerticalAlignment="Top">
+        <GroupBox x:Name="groupBox" Header="Pinhole Lum Meshes" Height="70" Margin="5,10,5,0" VerticalAlignment="Top">
             <Grid Margin="0">
                 <ComboBox x:Name="meshList" HorizontalAlignment="Left" Height="23" Margin="5,13,0,0" VerticalAlignment="Top" Width="384"/>
                 <Button x:Name="refreshMeshListBtn" Content="Refresh" HorizontalAlignment="Left" Height="23" Margin="401,13,0,0" VerticalAlignment="Top" Width="79"/>
             </Grid>
         </GroupBox>
-        <Button x:Name="calcUGR" Content="Calculate UGR" Margin="405,361,0,0" Height="23" VerticalAlignment="Top" HorizontalAlignment="Left" Width="89"/>
-        <Label x:Name="label_Copy" Content="Background Luminance" HorizontalAlignment="Left" Height="27" Margin="13,331,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="backLumIn" HorizontalAlignment="Left" Height="23" Margin="204,332,0,0" TextWrapping="Wrap" Text="100" VerticalAlignment="Top" Width="72" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <Label x:Name="label_Copy1" Content="Calculated UGR" HorizontalAlignment="Left" Margin="13,360,0,0" Height="23" VerticalAlignment="Top"/>
-        <TextBox x:Name="ugrOut" HorizontalAlignment="Left" Height="23" Margin="204,360,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="72" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsReadOnly="True"/>
-        <Label x:Name="strStat_Copy" Content="cd/m^2" HorizontalAlignment="Left" Height="27" Margin="281,331,0,0" VerticalAlignment="Top"/>
-        <GroupBox x:Name="Mesh" Header="Mesh Settings" HorizontalAlignment="Left" Height="146" Margin="5,10,0,0" VerticalAlignment="Top" Width="213" Padding="0">
-            <Grid Margin="0,0,0,0">
-                <TextBox x:Name="xNum" HorizontalAlignment="Left" Height="23" Margin="33,11,0,0" TextWrapping="Wrap" Text="320" VerticalAlignment="Top" Width="38" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label1" Content="X" HorizontalAlignment="Left" Height="23" Margin="5,9,0,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="5,0"/>
-                <Label x:Name="label_Copy2" Content="Bins" HorizontalAlignment="Left" Height="23" Margin="76,9,0,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" Padding="5,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                <TextBox x:Name="yNum" HorizontalAlignment="Left" Height="23" Margin="33,39,0,0" TextWrapping="Wrap" Text="200" VerticalAlignment="Top" Width="38" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label_Copy3" Content="Y" HorizontalAlignment="Left" Height="23" Margin="5,37,0,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" Padding="5,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                <Label x:Name="label_Copy4" Content="Bins" HorizontalAlignment="Left" Height="23" Margin="76,37,0,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" Padding="5,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label_Copy5" Content="Work Distance" HorizontalAlignment="Left" Height="23" Margin="5,67,0,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="5,0"/>
-                <TextBox x:Name="workDist" HorizontalAlignment="Left" Height="23" Margin="107,69,0,0" TextWrapping="Wrap" Text="20" VerticalAlignment="Top" Width="50" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label_Copy6" Content="mm" HorizontalAlignment="Left" Height="23" Margin="162,67,5,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" Padding="5,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label_Copy7" Content="Aperture Size" HorizontalAlignment="Left" Height="23" Margin="5,95,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="5,0" ScrollViewer.CanContentScroll="True"/>
-                <TextBox x:Name="apSize" HorizontalAlignment="Left" Height="23" Margin="107,97,0,0" TextWrapping="Wrap" Text="0.02" VerticalAlignment="Top" Width="50" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label_Copy8" Content="mm" HorizontalAlignment="Left" Height="23" Margin="162,95,5,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" Padding="5,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-            </Grid>
-        </GroupBox>
-        <GroupBox x:Name="Mesh_Copy" Header="Camera Settings" Height="146" Margin="223,10,5,0" VerticalAlignment="Top" Padding="0">
-            <Grid Margin="0,0,0,0">
-                <TextBox x:Name="fov" HorizontalAlignment="Left" Height="23" Margin="103,11,0,0" TextWrapping="Wrap" Text="50" VerticalAlignment="Top" Width="50" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label3" Content="FoV" HorizontalAlignment="Left" Height="23" Margin="5,9,0,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" Padding="5,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label_Copy11" Content="Degrees" Height="23" Margin="158,9,5,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" Padding="5,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-                <TextBox x:Name="lookD" HorizontalAlignment="Left" Height="23" Margin="103,39,0,0" TextWrapping="Wrap" Text="10" VerticalAlignment="Top" Width="50" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label_Copy12" Content="Look Distance" HorizontalAlignment="Left" Height="23" Margin="5,38,0,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" Padding="5,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label_Copy13" Content="W:H" HorizontalAlignment="Left" Height="23" Margin="5,66,0,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="5,0"/>
-                <TextBox x:Name="arW" HorizontalAlignment="Left" Height="23" Margin="103,67,0,0" TextWrapping="Wrap" Text="4" VerticalAlignment="Top" Width="38" HorizontalContentAlignment="Center"/>
-                <Label x:Name="label_Copy14" Content="mm" HorizontalAlignment="Left" Height="23" Margin="158,38,0,0" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" VerticalContentAlignment="Center" Padding="5,0"/>
-                <TextBox x:Name="arH" HorizontalAlignment="Left" Height="23" Margin="146,67,0,0" TextWrapping="Wrap" Text="3" VerticalAlignment="Top" Width="38" HorizontalContentAlignment="Center"/>
-            </Grid>
-        </GroupBox>
-        <Button x:Name="create" Content="Create" Height="23" Margin="419,214,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.292,-1.293" HorizontalAlignment="Left" Width="75"/>
-        <Button x:Name="reset" Content="Reset" Height="23" Margin="419,186,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="75"/>
 
     </Grid>
 </Window>
