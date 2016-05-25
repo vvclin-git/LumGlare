@@ -17,15 +17,7 @@ Class MainWindow
     Dim receiverKeyDict As New Dictionary(Of String, String) 'another dictionary for mapping mesh names and its receivers
     Dim posIdArray(,) As Double
     Dim strArray(,) As Double
-    'variables for pinhole cam creation
-    Dim newDummyPlaneKey As String
-    Dim newDummyPlaneName As String
-    Dim newCamKey As String
-    Dim newCamName As String
-    Dim newGroupKey, newGroupName As String
-    Dim bw As New BackgroundWorker() 'start a new thread for background process
-    Dim stopWatch As New Stopwatch()
-
+    Dim debugMode As Boolean
 
 
     Public Sub New()
@@ -34,16 +26,21 @@ Class MainWindow
         InitializeComponent()
 
         ' 在 InitializeComponent() 呼叫之後加入所有初始設定。
-        bw.WorkerReportsProgress = True
-        lt = LTGetter.getLTAPIServer
-        If IsNothing(lt) Then
-            MsgBox("LightTools session not found!")
+        debugMode = False
+        If Not debugMode Then
+            lt = LTGetter.getLTAPIServer
+            If IsNothing(lt) Then
+                MsgBox("LightTools session not found!")
+            Else
+                Me.Title = "Luminance Map UGR Calculator (PID = " + Str(lt.GetServerID()) + ")"
+                Call refreshMeshList()
+            End If
         Else
+            pID = 15940
+            lt = ltLoc.GetLTAPI(pID)
             Me.Title = "Luminance Map UGR Calculator (PID = " + Str(lt.GetServerID()) + ")"
             Call refreshMeshList()
         End If
-        'pID = 7540
-        'lt = ltLoc.GetLTAPI(pID)
     End Sub
 
     Private Sub refreshMeshList()
@@ -53,13 +50,16 @@ Class MainWindow
         Dim meshName As String
         Dim statList1 As LTReturnCodeEnum
         Dim statList2 As LTReturnCodeEnum
+        Dim statList3 As LTReturnCodeEnum
         'get receiver list
-        receiverListKey = lt.DbList("LENS_MANAGER[1].ILLUM_MANAGER[Illumination_Manager]", "RECEIVER")
+        receiverListKey = lt.DbList("LENS_MANAGER[1].ILLUM_MANAGER[Illumination_Manager]", "SURFACE_RECEIVER")
         'loop through the receivers
         Do
             receiverKey = lt.ListNext(receiverListKey, statList1)
+            'only deal with the receivers with keyword in their names
+            'If lt.DbGet(receiverKey, "Name") Like "PinHole Image*" Then
             'for each receiver, return a list containing all meshes
-            meshListKey = lt.DbList(receiverKey, "MESH")
+            meshListKey = lt.DbList(receiverKey, "SPATIAL_LUMINANCE_MESH", statList3)
             'use return code for loop ternimation
             If statList1 = 53 Then
                 Exit Do
@@ -71,20 +71,21 @@ Class MainWindow
                     Exit Do
                 End If
                 'exclude intensity mesh
-                If lt.DbType(meshKey, "INTENSITY_MESH") = 0 Then
-                    If lt.DbGet(meshKey, "Name") Like "PinHoleLumMap*" Then
-                        meshName = lt.DbGet(receiverKey, "Name") + " | " + lt.DbGet(meshKey, "Name")
-                        If Not meshKeyDict.ContainsKey(meshName) Then
-                            'put mesh name-key mapping into dictionary
-                            meshKeyDict.Add(meshName, meshKey)
-                            'put mesh name-receiver key mapping into dictionary
-                            receiverKeyDict.Add(meshName, receiverKey)
-                            'add meshName to the combobox
-                            Me.meshList.Items.Add(meshName)
-                        End If
-                    End If
+                'If lt.DbType(meshKey, "INTENSITY_MESH") = 0 Then
+                'If lt.DbGet(meshKey, "Name") Like "PinHoleLumMap*" Then
+                meshName = lt.DbGet(receiverKey, "Name") + " | " + lt.DbGet(meshKey, "Name")
+                If Not meshKeyDict.ContainsKey(meshName) Then
+                    'put mesh name-key mapping into dictionary
+                    meshKeyDict.Add(meshName, meshKey)
+                    'put mesh name-receiver key mapping into dictionary
+                    receiverKeyDict.Add(meshName, receiverKey)
+                    'add meshName to the combobox
+                    Me.meshList.Items.Add(meshName)
                 End If
+                'End If
+                'End If
             Loop
+            'End If
         Loop
     End Sub
 
@@ -109,6 +110,7 @@ Class MainWindow
         numX = lt.DbGet(meshKey, "X_Dimension")
         numY = lt.DbGet(meshKey, "Y_Dimension")
         If numSample = 0 Then
+            MsgBox("No ray data collected in the mesh!")
         Else
             ReDim lumArray(numX - 1, numY - 1)
             ReDim ugrArray(numY - 1, numX - 1)
@@ -116,6 +118,7 @@ Class MainWindow
             ugrTmp = 0
             For i = 0 To numY - 1
                 For j = 0 To numX - 1
+                    'Debug.Print("calculating: " + Str(i) + ", " + Str(j))
                     ugrTmp += (lumArray(j, i)) ^ 2 * strArray(i, j) / (posIdArray(i, j)) ^ 2
                     ugrArray(i, j) = (lumArray(j, numY - 1 - i)) ^ 2 * strArray(i, j) / (posIdArray(i, j)) ^ 2
                 Next
