@@ -5,26 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LumGlare"
         mc:Ignorable="d"
-        Title="Lum Map UGR Calculation" Height="279" Width="528" ResizeMode="NoResize">
-    <Grid Margin="5,0,5,5">
-        <GroupBox x:Name="groupBox1" Header="GroupBox" HorizontalAlignment="Left" Height="154" Margin="5,85,0,0" VerticalAlignment="Top" Width="497">
+        Title="Lum Map UGR Calculation" Height="250" Width="528" ResizeMode="NoResize">
+    <Grid Margin="5,0" Height="221" VerticalAlignment="Top">
+        <GroupBox x:Name="groupBox1" Header="GroupBox" Height="121" Margin="5,85,5,10" VerticalAlignment="Top">
             <Grid Margin="0">
-                <Label x:Name="label" Content="Minimal Mesh Ω" HorizontalAlignment="Left" Height="23" Margin="6,9,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="minStrOut" HorizontalAlignment="Left" Height="23" Margin="114,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="72" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsReadOnly="True"/>
-                <Label x:Name="strStat" Content="(should &gt; 2e-05!)" HorizontalAlignment="Left" Height="23" Margin="99,35,0,0" VerticalAlignment="Top"/>
-                <Button x:Name="calcUGR" Content="Calculate UGR" Margin="398,102,-2,0" Height="23" VerticalAlignment="Top" HorizontalAlignment="Left" Width="89"/>
-                <Label x:Name="label_Copy" Content="Background Luminance" HorizontalAlignment="Left" Height="27" Margin="6,72,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="backLumIn" HorizontalAlignment="Left" Height="23" Margin="197,73,0,0" TextWrapping="Wrap" Text="100" VerticalAlignment="Top" Width="72" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                <Label x:Name="label_Copy1" Content="Calculated UGR" HorizontalAlignment="Left" Margin="6,101,0,0" Height="23" VerticalAlignment="Top"/>
-                <TextBox x:Name="ugrOut" HorizontalAlignment="Left" Height="23" Margin="197,101,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="72" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsReadOnly="True"/>
-                <Label x:Name="strStat_Copy" Content="cd/m^2" HorizontalAlignment="Left" Height="27" Margin="274,72,0,0" VerticalAlignment="Top"/>
+                <Label x:Name="label" Content="Minimal Mesh Ω" HorizontalAlignment="Left" Height="27" Margin="5,9,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="minStrOut" HorizontalAlignment="Left" Height="23" Margin="198,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="72" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsReadOnly="True"/>
+                <Label x:Name="strStat" Content="(should &gt; 2e-05!)" HorizontalAlignment="Left" Height="23" Margin="275,9,0,0" VerticalAlignment="Top"/>
+                <Button x:Name="calcUGR" Content="Calculate UGR" Margin="383,65,5,0" Height="23" VerticalAlignment="Top"/>
+                <Label x:Name="label_Copy" Content="Background Luminance" HorizontalAlignment="Left" Height="27" Margin="5,36,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="backLumIn" HorizontalAlignment="Left" Height="23" Margin="198,37,0,0" TextWrapping="Wrap" Text="100" VerticalAlignment="Top" Width="72" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                <Label x:Name="label_Copy1" Content="Calculated UGR" HorizontalAlignment="Left" Margin="5,64,0,10" Height="27" VerticalAlignment="Top"/>
+                <TextBox x:Name="ugrOut" HorizontalAlignment="Left" Height="23" Margin="198,65,0,10" TextWrapping="Wrap" VerticalAlignment="Top" Width="72" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsReadOnly="True"/>
+                <Label x:Name="strStat_Copy" Content="cd/m^2" HorizontalAlignment="Left" Height="27" Margin="275,36,0,0" VerticalAlignment="Top"/>
             </Grid>
         </GroupBox>
 
         <GroupBox x:Name="groupBox" Header="Pinhole Lum Meshes" Height="70" Margin="5,10,5,0" VerticalAlignment="Top">
             <Grid Margin="0">
-                <ComboBox x:Name="meshList" HorizontalAlignment="Left" Height="23" Margin="5,13,0,0" VerticalAlignment="Top" Width="384"/>
-                <Button x:Name="refreshMeshListBtn" Content="Refresh" HorizontalAlignment="Left" Height="23" Margin="401,13,0,0" VerticalAlignment="Top" Width="79"/>
+                <ComboBox x:Name="meshList" HorizontalAlignment="Left" Height="23" Margin="5,10,0,0" VerticalAlignment="Top" Width="384"/>
+                <Button x:Name="refreshMeshListBtn" Content="Refresh" Height="23" Margin="401,10,5,10" VerticalAlignment="Top"/>
             </Grid>
         </GroupBox>
 
